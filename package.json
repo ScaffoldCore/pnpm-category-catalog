@@ -1,7 +1,7 @@
 {
     "name": "pnpm-category-catalog",
     "type": "module",
-    "version": "0.0.0-alpha.0.0.1",
+    "version": "0.0.0-alpha.0.0.2",
     "packageManager": "pnpm@10.15.1",
     "description": "Pnpm auto category catalog",
     "author": "lonewolfyx <olddrivero.king@qq.com>",
