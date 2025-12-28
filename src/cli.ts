@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import cac from 'cac'
 import { glob } from 'glob'
 import { resolveConfig } from '@/config.ts'
+import { updatePackageDependencies } from '@/dependencies.ts'
 import { stringifyYamlWithTopLevelBlankLine } from '@/utils.ts'
 import { getNewWorkSpaceYaml } from '@/work.space.ts'
 import { name, version } from '../package.json'
@@ -27,36 +28,6 @@ cli.command('')
             writeFileSync(workspace.path, stringifyYamlWithTopLevelBlankLine(workspace.context), 'utf-8')
         }
     })
-
-function updatePackageDependencies(packagePathMap: any[], catalogs: any, cwd: string) {
-    const dependencyTypes = ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies']
-
-    packagePathMap.forEach((path: any, index: number) => {
-        const filePath = resolve(cwd, path)
-        const context = JSON.parse(readFileSync(filePath, 'utf-8'))
-
-        let updated = false
-
-        dependencyTypes.forEach((depType) => {
-            if (context[depType]) {
-                Object.keys(context[depType]).forEach((depName) => {
-                    // 检查这个依赖是否在选中的 dependencies 中
-                    if (catalogs.dependencies[depName]) {
-                        // 更新版本为 catalog:{$catalogs.name}
-                        context[depType][depName] = `catalog:${catalogs.name}`
-                        updated = true
-                        // console.log(`更新 ${filePath} 中的 ${depName} 为 catalog:${catalogs.name}`)
-                    }
-                })
-            }
-        })
-
-        // 如果有更新，写回到文件
-        if (updated) {
-            writeFileSync(filePath, `${JSON.stringify(context, null, 2)}\n`, 'utf-8')
-        }
-    })
-}
 
 cli.help()
 cli.version(version)
