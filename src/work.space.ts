@@ -2,6 +2,7 @@ import type { IConfig, IWorkSpace, IWorkSpaceConfig, IWorkSpaceContext } from '@
 import { readFile } from 'node:fs/promises'
 import { confirm, multiselect, outro, text } from '@clack/prompts'
 import { findUp } from 'find-up'
+import { yellow } from 'picocolors'
 import { parse, stringify } from 'yaml'
 import { CANCEL_PROCESS } from '@/constant.ts'
 import { isCancelProcess } from '@/utils.ts'
@@ -107,7 +108,16 @@ export const getNewWorkSpaceYaml = async (config: IWorkSpaceConfig): Promise<IWo
 export const batchProcessCatalog = async (config: IWorkSpaceConfig): Promise<IWorkSpaceContext | null> => {
     const context = config.workspace
     if (!context.catalog) {
-        throw new Error('暂无 catalog')
+        // throw new Error('暂无 catalog')
+        outro('')
+        console.log(`${yellow('╭ Warning ───────────────────────────────────────────────────────────────────────────────────╮')}
+${yellow('│')}                                                                                            ${yellow('│')}
+${yellow('│')}   If you have an existing workspace that you want to migrate to using catalogs,            ${yellow('│')}
+${yellow('│')}   you can use the following codemod:                                                       ${yellow('│')}
+${yellow('│')}   Run "pnpx codemod pnpm/catalog"                                                          ${yellow('│')}
+${yellow('│')}                                                                                            ${yellow('│')}
+${yellow('╰────────────────────────────────────────────────────────────────────────────────────────────╯')}`)
+        return null
     }
 
     const catalog = context.catalog
