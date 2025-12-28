@@ -48,6 +48,35 @@ Run in the project root directory:
 pcc
 ```
 
+## 💡 Best Practices
+> [!TIP]
+> 👀 Interested in pnpm catalogs? Recommend you read this post: [Categorize Your Dependencies](https://antfu.me/posts/categorize-deps) by Anthony.
+
+### Direct Execution
+> [!TIP]
+> You can execute directly or install globally. The following examples use direct execution:
+
+```bash
+# 1. migrate to pnpm catalog (execute this command if not yet migrated).
+pnpx codemod pnpm/catalog
+
+# 2. execute custom category migration command.
+npx pnpm-category-catalog
+```
+
+## 🔧 Extensions
+### ESLint Ecosystem
+If you want to use ESLint for some [constraints](https://github.com/antfu/pnpm-workspace-utils), you can choose one of the following methods (optional):
+
+1. If you are using [`@antfu/eslint-config`](https://github.com/antfu/eslint-config)
+```ts
+export default antfu({
+  pnpm: true,
+  // other options ...
+})
+```
+2. If you are not using `@antfu/eslint-config`, use it directly in `eslint.config.js`. For details, see: [pnpm-workspace-utils](https://github.com/antfu/pnpm-workspace-utils/tree/main/packages/eslint-plugin-pnpm)
+
 ## 🤝 Contributing
 
 Welcome to submit Issues and Pull Requests!
