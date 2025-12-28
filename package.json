@@ -10,7 +10,11 @@
     "bugs": {
         "url": "https://github.com/lonewolfyx/pnpm-category-catalog/issues"
     },
-    "keywords": [],
+    "keywords": [
+        "catalog",
+        "catalogs",
+        "category"
+    ],
     "exports": {
         ".": "./dist/index.mjs",
         "./package.json": "./package.json"
