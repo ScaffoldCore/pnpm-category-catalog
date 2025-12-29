@@ -1,6 +1,9 @@
-<h1 align="center">
-    Pnpm Category Catalog
-</h1>
+<div align="center">
+<h1>Pnpm Category Catalog</h1>
+
+English | [中文](https://github.com/lonewolfyx/pnpm-category-catalog/raw/master/README_ZH.md)
+
+</div>
 
 `pnpm-category-catalog` is a CLI tool designed for monorepo projects using pnpm workspace. It solves the following pain
 points:
@@ -11,10 +14,6 @@ points:
 - **Interactive Operations**: Provide a friendly command-line interactive interface with confirm, cancel and undo
   support
 - **Batch Processing**: Support loop processing until all packages are categorized
-
-<p align="center">
-    English | [中文](https://github.com/ScaffoldCore/pnpm-category-catalog/blob/master/README_ZH.md)
-</p>
 
 <img src="https://github.com/lonewolfyx/pnpm-category-catalog/raw/master/screenshot.gif" alt="screenshot">
 

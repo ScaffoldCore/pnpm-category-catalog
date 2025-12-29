@@ -1,6 +1,9 @@
-<h1 align="center">
-    Pnpm Category Catalog
-</h1>
+<div align="center">
+<h1>Pnpm Category Catalog</h1>
+
+[English](https://github.com/lonewolfyx/pnpm-category-catalog/raw/master/README.md) | 中文
+
+</div>
 
 `pnpm-category-catalog` 是为使用 pnpm workspace 的 monorepo 项目设计的 CLI 工具。它解决了以下痛点：
 
@@ -10,10 +13,6 @@
 - **批量处理**: 支持循环处理，直到所有依赖项都被分类
 
 <img src="https://github.com/lonewolfyx/pnpm-category-catalog/raw/master/screenshot.gif" alt="screenshot">
-
-<p align="center">
-    [English](https://github.com/ScaffoldCore/pnpm-category-catalog/blob/master/README.md) | 中文
-</p>
 
 ## 🛠️ 如何使用
 
