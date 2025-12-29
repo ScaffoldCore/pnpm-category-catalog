@@ -1,3 +1,5 @@
+import type { DependencyUsageMap } from '@/utils'
+
 export type KnownKeys<T> = {
     [K in keyof T]: string extends K ? never : number extends K ? never : K
 } extends { [_ in keyof T]: infer U } ? U : never
@@ -26,7 +28,9 @@ export interface IWorkSpaceYaml {
     catalogs?: Record<string, Record<string, string>>
 }
 
-export type IWorkSpaceConfig = IConfig & IWorkSpace
+export type IWorkSpaceConfig = IConfig & IWorkSpace & {
+    usageMap?: DependencyUsageMap
+}
 
 export interface ICatalogsCategories {
     name: string

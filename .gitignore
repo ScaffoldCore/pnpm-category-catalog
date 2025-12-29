@@ -138,3 +138,6 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .idea
+
+# Examples workspace (generated from fixtures)
+examples/workspace

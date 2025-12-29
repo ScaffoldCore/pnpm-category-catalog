@@ -1,11 +1,12 @@
 import type { AllCatalogsType, CatalogsContextType, IConfig, IWorkSpace, IWorkSpaceConfig, IWorkSpaceContext, IWorkSpaceYaml } from '@/types'
+import type { DependencyUsageMap } from '@/utils.ts'
 import { readFile } from 'node:fs/promises'
 import { confirm, multiselect, outro, text } from '@clack/prompts'
 import boxen from 'boxen'
 import { findUp } from 'find-up'
 import { parse, stringify } from 'yaml'
 import { CANCEL_PROCESS } from '@/constant.ts'
-import { isCancelProcess } from '@/utils.ts'
+import { formatDependencyUsage, isCancelProcess } from '@/utils.ts'
 
 export const getWorkSpaceYaml = async (config: IConfig): Promise<IWorkSpace> => {
     const workSpaceYamlPath = await findUp('pnpm-workspace.yaml', {
@@ -107,10 +108,11 @@ export const confirmModify = async (options: ConfirmModifiyOptions): Promise<IWo
 interface ProcessCatalogOptionsType {
     allCatalogs: AllCatalogsType[]
     context: IWorkSpaceYaml
+    usageMap?: DependencyUsageMap
 }
 
 const processCatalog = async (options: ProcessCatalogOptionsType) => {
-    const { context, allCatalogs } = options
+    const { context, allCatalogs, usageMap } = options
     let continueProcessing = true
 
     while (continueProcessing) {
@@ -128,10 +130,15 @@ const processCatalog = async (options: ProcessCatalogOptionsType) => {
 
         const choice = await multiselect({
             message: '请选择要分类的依赖包 (如无需操作，请回车跳过本轮)',
-            options: remainingKeys.map(key => ({
-                value: key,
-                label: key,
-            })),
+            options: remainingKeys.map((key) => {
+                const version = context.catalog![key]
+                const usage = usageMap ? formatDependencyUsage(usageMap, key) : ''
+                const label = usage ? `${key} (${version}) - ${usage}` : `${key} (${version})`
+                return {
+                    value: key,
+                    label,
+                }
+            }),
             required: false,
         }) as string[]
 
@@ -202,10 +209,15 @@ export const getNewWorkSpaceYaml = async (config: IWorkSpaceConfig): Promise<IWo
 
     const choice = await multiselect({
         message: '选择要切换的包',
-        options: Object.keys(catalog).map(key => ({
-            value: key,
-            label: key,
-        })),
+        options: Object.keys(catalog).map((key) => {
+            const version = catalog[key]
+            const usage = config.usageMap ? formatDependencyUsage(config.usageMap, key) : ''
+            const label = usage ? `${key} (${version}) - ${usage}` : `${key} (${version})`
+            return {
+                value: key,
+                label,
+            }
+        }),
     }) as string[]
 
     const catalogsName = await text({
@@ -319,6 +331,6 @@ Run "pnpx codemod pnpm/catalog"`,
 
     const allCatalogs: AllCatalogsType[] = []
 
-    await processCatalog({ allCatalogs, context })
+    await processCatalog({ allCatalogs, context, usageMap: config.usageMap })
     return await confirmModify({ allCatalogs, config, context })
 }

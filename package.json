@@ -34,7 +34,9 @@
         "test": "vitest",
         "lint": "eslint",
         "lint:fix": "eslint --fix",
-        "prepublishOnly": "pnpm build"
+        "prepublishOnly": "pnpm build",
+        "examples:setup": "tsx scripts/examples-setup.ts",
+        "dev:basic": "tsx scripts/examples-setup.ts basic && tsx src/cli.ts --cwd examples/workspace/basic"
     },
     "publishConfig": {
         "registry": "https://registry.npmjs.org",

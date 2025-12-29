@@ -1,7 +1,8 @@
+import * as path from 'node:path'
 import * as process from 'node:process'
 
-export const resolveConfig = () => {
+export const resolveConfig = (cwd?: string) => {
     return {
-        cwd: process.cwd(),
+        cwd: cwd ? path.resolve(cwd) : process.cwd(),
     }
 }

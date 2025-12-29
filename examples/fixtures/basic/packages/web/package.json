@@ -1,0 +1,14 @@
+{
+    "name": "@example/web",
+    "version": "0.0.0",
+    "private": true,
+    "dependencies": {
+        "axios": "^1.6.0",
+        "lodash": "^4.17.21",
+        "vue": "^3.4.0"
+    },
+    "devDependencies": {
+        "eslint": "^8.56.0",
+        "typescript": "^5.3.0"
+    }
+}
