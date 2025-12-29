@@ -13,12 +13,7 @@ import {
 } from '@/backup.ts'
 import { resolveConfig } from '@/config.ts'
 import { resolvePackageDependencies } from '@/dependencies.ts'
-import {
-    printTable,
-    scanDependencyUsage,
-    stringifyYamlWithTopLevelBlankLine,
-    writeFile,
-} from '@/utils.ts'
+import { printTable, scanDependencyUsage, stringifyYamlWithTopLevelBlankLine, writeFile } from '@/utils.ts'
 import { batchProcessCatalog, getWorkSpaceYaml } from '@/work.space.ts'
 import { name, version } from '../package.json'
 
@@ -67,6 +62,11 @@ cli
                 ...updatedFiles.map(i => i.path),
             ]
 
+            const s = spinner({
+                indicator: 'timer',
+            })
+            s.start('pnpm-workspace.yaml processing...')
+
             // 创建备份
             const categoryNames
                 = workspace.catalogs.categories?.map(c => c.name).join(', ') || ''
@@ -80,9 +80,6 @@ cli
                     'pcc undo',
                 )}`,
             )
-
-            const s = spinner()
-            s.start('pnpm-workspace.yaml processing...')
 
             // 更新 package.json 中的依赖版本
             if (updatedFiles.length > 0) {
