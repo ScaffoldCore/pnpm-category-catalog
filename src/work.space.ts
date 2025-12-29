@@ -49,7 +49,7 @@ export const updateCatalogsWithContext = (options: CatalogsContextType) => {
     return context
 }
 
-interface ConfirmModifiyOptions {
+interface ConfirmModifyOptions {
     allCatalogs: AllCatalogsType[]
     config: IWorkSpaceConfig
     context: IWorkSpaceYaml
@@ -58,7 +58,7 @@ interface ConfirmModifiyOptions {
 /**
  * final confirmation to save all changes
  */
-export const confirmModify = async (options: ConfirmModifiyOptions): Promise<IWorkSpaceContext | null> => {
+export const confirmModify = async (options: ConfirmModifyOptions): Promise<IWorkSpaceContext | null> => {
     const { allCatalogs, config, context } = options
     if (allCatalogs.length === 0) {
         outro('用户当前已取消操作')
