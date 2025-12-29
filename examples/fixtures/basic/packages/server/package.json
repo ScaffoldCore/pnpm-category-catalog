@@ -1,0 +1,13 @@
+{
+  "name": "@example/server",
+  "private": true,
+  "version": "0.0.0",
+  "dependencies": {
+    "express": "^4.18.0",
+    "lodash": "^4.17.21",
+    "dayjs": "^1.11.10"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@example/utils",
+  "private": true,
+  "version": "0.0.0",
+  "dependencies": {
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}

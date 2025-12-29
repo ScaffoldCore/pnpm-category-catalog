@@ -1,7 +1,7 @@
 import { intro, outro } from '@clack/prompts'
 import cac from 'cac'
 import { glob } from 'glob'
-import { bgCyan } from 'picocolors'
+import pc from 'picocolors'
 import { resolveConfig } from '@/config.ts'
 import { resolvePackageDependencies } from '@/dependencies.ts'
 import { printTable, stringifyYamlWithTopLevelBlankLine, writeFile } from '@/utils.ts'
@@ -11,15 +11,16 @@ import { name, version } from '../package.json'
 const cli = cac(name)
 
 cli.command('')
-    .action(async () => {
+    .option('--cwd <path>', 'Specify the working directory')
+    .action(async (options: { cwd?: string }) => {
         try {
-            const config = resolveConfig()
+            const config = resolveConfig(options.cwd)
             const packagePathMap = await glob(['package.json', '*/**/package.json'], {
                 cwd: config.cwd,
                 ignore: ['**/node_modules/**'],
             })
 
-            intro(bgCyan(` Pnpm workspace catalog category manage [v${version}]`))
+            intro(pc.bgCyan(` Pnpm workspace catalog category manage [v${version}]`))
 
             const workSpaceYaml = await getWorkSpaceYaml(config)
 

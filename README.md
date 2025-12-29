@@ -81,6 +81,34 @@ export default antfu({
 
 Welcome to submit Issues and Pull Requests!
 
+### Development
+
+```bash
+# Install dependencies
+pnpm install
+
+# Run with example scenario (auto setup + run CLI)
+pnpm dev:basic
+```
+
+#### Example Scenarios
+
+| Command | Description |
+|---------|-------------|
+| `pnpm dev:basic` | Basic scenario: all deps in `catalog`, not yet categorized |
+
+Each run automatically resets to initial state, so you can test repeatedly without pollution.
+
+#### Directory Structure
+
+```
+examples/
+├── fixtures/     # Original templates (read-only)
+│   └── basic/
+└── workspace/    # Working directory (auto-generated, git ignored)
+    └── basic/
+```
+
 ## 📄 License
 
 [MIT](./LICENSE) License © [lonewolfyx](https://github.com/lonewolfyx)
