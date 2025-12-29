@@ -89,7 +89,7 @@ cli
                 updatedFiles.forEach((i) => {
                     writeFile(i.path, i.context)
                 })
-                log.success(`已更新 ${updatedFiles.length} 个 package.json 文件`)
+                // log.success(`已更新 ${updatedFiles.length} 个 package.json 文件`)
             }
             else {
                 log.info('没有需要更新的 package.json 文件')
@@ -99,7 +99,7 @@ cli
                 workspace.path,
                 stringifyYamlWithTopLevelBlankLine(workspace.context),
             )
-            log.success('已更新 pnpm-workspace.yaml')
+            // log.success('已更新 pnpm-workspace.yaml')
 
             s.stop(`Done. Congratulations, you have successfully managed. Back ID: ${pc.dim(backupId)}`)
 
