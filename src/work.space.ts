@@ -13,6 +13,7 @@ import { readFile } from 'node:fs/promises'
 import { confirm, multiselect, outro, select, text } from '@clack/prompts'
 import boxen from 'boxen'
 import { findUp } from 'find-up'
+import pc from 'picocolors'
 import { parse, stringify } from 'yaml'
 import { CANCEL_PROCESS, DEFAULT_CATALOGS } from '@/constant.ts'
 import { formatDependencyUsage, isCancelProcess } from '@/utils.ts'
@@ -23,7 +24,7 @@ export const getWorkSpaceYaml = async (config: IConfig): Promise<IWorkSpace> => 
     })
 
     if (!workSpaceYamlPath) {
-        throw new Error('当前暂未使用 pnpm-workspace.yaml 相关功能，请检测您当前的项目后在使用此 CLI 工具')
+        throw new Error('pnpm-workspace.yaml is not currently used, please check your current project before using this CLI tool!')
     }
 
     return {
@@ -33,27 +34,27 @@ export const getWorkSpaceYaml = async (config: IConfig): Promise<IWorkSpace> => 
 }
 export const updateCatalogsWithContext = (options: CatalogsContextType) => {
     const { choice, context, catalogsName, dependencies } = options
-    // 从 context.catalog 中删除选中的 key
+    // Remove the selected key from context.catalog
     choice.forEach((key: string) => {
         delete context.catalog![key]
     })
 
-    // 确保 context.catalogs 存在
+    // Make sure context.catalogs exists
     if (!context.catalogs) {
         context.catalogs = {}
     }
 
-    // 检查节点是否存在，存在则合并，不存在则创建
+    // Check if the node exists; if it does, merge; if it doesn't, create
     if (context.catalogs[catalogsName]) {
         context.catalogs[catalogsName] = {
             ...context.catalogs[catalogsName],
             ...dependencies,
         }
-        // console.log(`✅ 已将 ${choice.length} 个包合并到 catalogs.${catalogsName} 节点中`)
+        // console.log(`✅ ${choice.length} packages have been merged into the catalogs.${catalogsName} node`)
     }
     else {
         context.catalogs[catalogsName] = dependencies
-        // console.log(`✅ 已将 ${choice.length} 个包添加到 catalogs.${catalogsName} 节点中`)
+        // console.log(`✅ ${choice.length} packages have been added to the catalogs.${catalogsName} node`)
     }
     return context
 }
@@ -70,22 +71,22 @@ interface ConfirmModifyOptions {
 export const confirmModify = async (options: ConfirmModifyOptions): Promise<IWorkSpaceContext | null> => {
     const { allCatalogs, config, context } = options
     if (allCatalogs.length === 0) {
-        outro('用户当前已取消操作')
+        outro(CANCEL_PROCESS)
         return null
     }
 
     const finalConfirm = await confirm({
-        message: `已完成 ${allCatalogs.length} 个分类的创建，确认保存所有更改到 pnpm-workspace.yaml？`,
+        message: `Are you sure write the latest management configuration to the pnpm-workspace.yaml file?`,
     }) as boolean
 
+    isCancelProcess(finalConfirm, CANCEL_PROCESS)
+
     if (!finalConfirm) {
-        outro('❌ 用户取消保存，所有更改将被丢弃')
+        outro('❌ All changes will be discarded because the user cancels saving!')
         return null
     }
 
-    // outro('✅ 用户确认保存所有更改')
-
-    // 对于批量处理，返回所有分类的完整信息
+    // For batch processing, complete information for all classifications is returned
     const allDependencies: Record<string, string> = {}
     const catalogNames: string[] = []
 
@@ -143,12 +144,12 @@ async function getCatalogName(
     })
 
     options.push({
-        label: 'create a new category name?',
+        label: 'create a new catalog name?',
         value: CUSTOM_CATALOG_NAME,
     })
 
     let catalogsName = await select({
-        message: '请选择或自定义分类名称',
+        message: 'Please select or customize catalog name',
         options: Array.from(new Set([...options])),
     }) as string
 
@@ -156,13 +157,13 @@ async function getCatalogName(
 
     if (catalogsName === CUSTOM_CATALOG_NAME) {
         catalogsName = await text({
-            message: '请输入自定义分类名称',
+            message: 'Please enter custom catalog name:',
             placeholder: '',
             validate: (value) => {
                 if (!value || !value.trim())
-                    return '分类名称不能为空.'
+                    return 'catalog name cannot be empty.'
                 if (options.map(i => i.label).includes(value.trim()))
-                    return '该分类已存在，请直接在列表中选择.'
+                    return 'this catalog name already exists, please select it from the list.'
             },
         }) as string
     }
@@ -178,17 +179,17 @@ const processCatalog = async (options: ProcessCatalogOptionsType) => {
         const remainingKeys = Object.keys(context.catalog || {})
 
         if (remainingKeys.length === 0) {
-            outro('✅ 所有包已处理完毕')
+            outro('✅ All dependencies have been assigned a catalog name.')
             break
         }
 
-        // console.log(`\n剩余 ${remainingKeys.length} 个包待处理:`)
+        // console.log(`\n${remainingKeys.length} remaining to be processed:`)
         // remainingKeys.forEach((key) => {
         //     console.log(`  - ${key}: ${context.catalog![key]}`)
         // })
 
         const choice = await multiselect({
-            message: '请选择要分类的依赖包 (如无需操作，请回车跳过本轮)',
+            message: 'Please select the dependencies you want to manage (if not, press Enter to skip this round)',
             options: remainingKeys.map((key) => {
                 const version = context.catalog![key]
                 const usage = usageMap ? formatDependencyUsage(usageMap, key) : ''
@@ -204,7 +205,7 @@ const processCatalog = async (options: ProcessCatalogOptionsType) => {
         isCancelProcess(choice, CANCEL_PROCESS)
 
         if (!choice || choice.length === 0) {
-            // console.log('本轮未选择任何包')
+            // console.log('No packet was selected for this round')
         }
         else {
             const catalogsName = await getCatalogName(context.catalogs)
@@ -212,20 +213,20 @@ const processCatalog = async (options: ProcessCatalogOptionsType) => {
             isCancelProcess(catalogsName, CANCEL_PROCESS)
 
             if (catalogsName && catalogsName.trim()) {
-                // 将选择的结果与 catalog 匹配，得到 key: value 版本号
+                // Match the selection with the catalog to get the key: value version number
                 const dependencies: Record<string, string> = {}
                 choice.forEach((key: string) => {
                     dependencies[key] = context.catalog![key]!
                 })
 
-                // console.log(`分类 "${catalogsName}" 将包含以下包:`)
+                // console.log(`The category "${catalogsName}" will contain the following packages:`)
                 // Object.entries(dependencies).forEach(([key, version]) => {
                 //     console.log(`  - ${key}: ${version}`)
                 // })
 
-                // 确认操作
+                // confirm operation
                 const confirmed = await confirm({
-                    message: `确认将这 ${choice.length} 个包添加到分类 "${catalogsName}" 中？`,
+                    message: `Do you place the selected dependencies in the \`${pc.red(catalogsName)}\` category?`,
                 }) as boolean
 
                 isCancelProcess(confirmed, CANCEL_PROCESS)
@@ -233,16 +234,16 @@ const processCatalog = async (options: ProcessCatalogOptionsType) => {
                 if (confirmed)
                     updateCatalogsWithContext({ choice, context, catalogsName, dependencies })
                 if (confirmed) {
-                    // 保存本轮操作结果
+                    // save the operation result of this round
                     allCatalogs.push({ choice, name: catalogsName, dependencies })
                 }
             }
         }
 
-        // 询问是否继续处理
+        // Ask whether to continue processing
         if (Object.keys(context.catalog || {}).length > 0) {
             continueProcessing = await confirm({
-                message: '是否继续处理剩余的包？',
+                message: 'Do you continue to manage the remaining dependencies?',
                 initialValue: false,
             }) as boolean
 
@@ -251,94 +252,6 @@ const processCatalog = async (options: ProcessCatalogOptionsType) => {
         else {
             continueProcessing = false
         }
-    }
-}
-
-export const getNewWorkSpaceYaml = async (config: IWorkSpaceConfig): Promise<IWorkSpaceContext> => {
-    const context = config.workspace
-    if (!context.catalog) {
-        throw new Error('暂无 catalog')
-    }
-
-    const catalog = context.catalog
-
-    const choice = await multiselect({
-        message: '选择要切换的包',
-        options: Object.keys(catalog).map((key) => {
-            const version = catalog[key]
-            const usage = config.usageMap ? formatDependencyUsage(config.usageMap, key) : ''
-            const label = usage ? `${key} (${version}) - ${usage}` : `${key} (${version})`
-            return {
-                value: key,
-                label,
-            }
-        }),
-    }) as string[]
-
-    const catalogsName = await text({
-        message: '请输入自定义分类名称',
-        placeholder: '',
-        defaultValue: '',
-    }) as string
-
-    // 将选择的结果与 catalog 匹配，得到 key: value 版本号
-    const dependencies: Record<string, string> = {}
-    if (choice && typeof choice === 'object') {
-        choice.forEach((key: string) => {
-            dependencies[key] = catalog[key]!
-        })
-    }
-
-    console.log('选中的包对象:', dependencies)
-
-    // 从 context.catalog 中删除选中的 key
-    if (choice && typeof choice === 'object') {
-        choice.forEach((key: string) => {
-            delete context.catalog![key]
-        })
-    }
-
-    // 检查 catalogsName 是否有值
-    if (!catalogsName) {
-        throw new Error('未输入有效的分类名称，操作已取消')
-    }
-
-    // 确保 context.catalogs 存在
-    if (!context.catalogs) {
-        context.catalogs = {}
-    }
-
-    // 检查节点是否存在，存在则合并，不存在则创建
-    if (context.catalogs[catalogsName]) {
-        // 节点已存在，合并 packages
-        context.catalogs[catalogsName] = {
-            ...context.catalogs[catalogsName],
-            ...dependencies,
-        }
-        // console.log(`已将选中的包合并到 catalogs.${catalogsName} 节点中`)
-    }
-    else {
-        // 节点不存在，直接赋值
-        context.catalogs[catalogsName] = dependencies
-        // console.log(`已将选中的包添加到 catalogs.${catalogsName} 节点中`)
-    }
-
-    // 将更新后的 context 写回到文件
-    return {
-        path: config.workSpaceYamlPath,
-        // 最终要替换 pnpm-workspace.yaml 内容
-        context: stringify(context, {
-            indent: 2,
-            lineWidth: 0,
-            minContentWidth: 0,
-        }),
-        // catalogs 新增节点内容
-        catalogs: {
-            choice,
-            name: catalogsName,
-            dependencies,
-        },
-
     }
 }
 
@@ -365,21 +278,21 @@ Run "pnpx codemod pnpm/catalog"`,
     const catalogKeys = Object.keys(catalog)
 
     if (catalogKeys.length === 0) {
-        outro('✅ pnpm-workspace.yaml catalog 已经为空，无需处理')
+        outro('✅ The catalog is not currently in the pnpm-workspace.yaml file, so it cannot be managed.')
         return null
     }
 
-    // // 询问是否需要进行批量管理
+    // // Ask if batch management is required
     // const shouldBatch = await confirm({
-    //     message: `检测到 catalog 中有 ${catalogKeys.length} 个包，是否进行批量分类管理？`,
+    //     message: `We detected ${catalogKeys.length} dependencies in the catalog. Do you want to batch catalog?`,
     // }) as boolean
     //
     // if (!shouldBatch) {
-    //     console.log('❌ 用户选择跳过批量管理')
+    //     console.log('❌ The user chooses to skip batch management')
     //     return null
     // }
 
-    // console.log(`当前 catalog 中的包列表:`)
+    // console.log(`dependencies list:`)
     // catalogKeys.forEach((key) => {
     //     console.log(`  - ${key}: ${catalog[key]}`)
     // })

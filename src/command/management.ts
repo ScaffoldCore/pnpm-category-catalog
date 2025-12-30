@@ -20,22 +20,23 @@ export const managementWorkSpaceCatalog = async (config: IConfig): Promise<void 
 
     const workSpaceYaml = await getWorkSpaceYaml(config)
 
-    // 扫描依赖使用情况
+    // scanning depends on usage
     const usageMap = scanDependencyUsage(config, packagePathMap)
 
-    // 批量处理 catalog
+    // batch processing catalog
     const workspace = await batchProcessCatalog({
         ...config,
         ...workSpaceYaml,
         usageMap,
     })
 
-    // 只有在进行了分类操作且确认保存后才进行后续处理
+    // only after the classification operation has been carried out
+    // and the saving has been confirmed will subsequent processing be conducted
     if (!workspace) {
         return ''
     }
 
-    // 收集要修改的文件路径
+    // collect the file path to be modified
     const pkgFiles = resolvePackageDependencies(
         config,
         packagePathMap,
@@ -45,7 +46,7 @@ export const managementWorkSpaceCatalog = async (config: IConfig): Promise<void 
     const updatedFiles = pkgFiles.used.filter(i => i.isUpdate)
 
     if (!updatedFiles.length) {
-        outro('由于您可能选择了未使用到的依赖包，因此未能匹配到 package.json ,所以此进程将结束.')
+        outro('Since you might have selected an unused dependency package, the package.json did not match, so this process will end.')
         printTable(
             workspace.catalogs.categories?.reduce(
                 (
@@ -79,35 +80,35 @@ export const managementWorkSpaceCatalog = async (config: IConfig): Promise<void 
     })
     s.start('pnpm-workspace.yaml processing...')
 
-    // 创建备份
+    // create a backup
     const categoryNames
         = workspace.catalogs.categories?.map(c => c.name).join(', ') || ''
     const backupId = createBackup(
         config,
         filesToBackup,
-        `创建分类: ${categoryNames}`,
+        `categories: ${categoryNames}`,
     )
     log.info(
-        `已备份 ${filesToBackup.length} 个文件，如需恢复请执行: ${pc.cyan(
+        `Current operation has been backed up, if you want to restore, please run: ${pc.cyan(
             'pcc undo',
         )}`,
     )
 
-    // 更新 package.json 中的依赖版本
+    // Update the dependency versions in package.json
     updatedFiles.forEach((i) => {
         writeFile(i.path, i.context)
     })
-    // log.success(`已更新 ${updatedFiles.length} 个 package.json 文件`)
+    // log.success(`Updated ${updatedFiles.length} package.json files`)
 
     writeFile(
         workspace.path,
         stringifyYamlWithTopLevelBlankLine(workspace.context),
     )
-    // log.success('已更新 pnpm-workspace.yaml')
+    // log.success('done. updated pnpm-workspace.yaml')
 
     s.stop(`Done. Congratulations, you have successfully managed. Back ID: ${pc.dim(backupId)}`)
 
-    // 显示已成功更新的 package.json 详情
+    // show the details of the successfully updated package.json
     console.log()
     updatedFiles.forEach((i) => {
         intro(`[update: ${link(pc.blue(pc.bold(i.path.replace(config.cwd, ''))), `file://${i.path}`)}]`)
@@ -117,9 +118,9 @@ export const managementWorkSpaceCatalog = async (config: IConfig): Promise<void 
         })))
     })
 
-    // 显示未使用到的依赖
+    // shows unused dependencies
     if (pkgFiles.unused.length) {
-        intro(pc.red('当前您存在选择但未使用上的依赖包'))
+        intro(pc.red('You currently have selected but unused dependencies:'))
         printTable(pkgFiles.unused.map(i => ({
             Dependencies: pc.yellow(i.dependency),
             Catalog: `${CATALOG_PLACEHOLDER}${pc.blue(i.version.replace(CATALOG_PLACEHOLDER, ''))}`,

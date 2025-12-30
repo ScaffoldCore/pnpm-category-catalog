@@ -26,7 +26,7 @@ const printBackList = (insertedRows: Dictionary[]): void => {
 }
 
 const hasNoBack = () => {
-    outro(pc.yellow('没有找到任何备份'))
+    outro(pc.yellow('No backups were found.'))
 }
 
 export const rollback = async (
@@ -44,7 +44,7 @@ export const rollback = async (
             return
         }
 
-        outro(`共找到 ${backups.length} 个备份:`)
+        outro(`${backups.length} backups found:`)
 
         printBackList(backups.map((back: BackupInfo) => ({
             backupId: back.manifest.id,
@@ -75,19 +75,19 @@ Run "npx pnpm-category-catalog undo [backupId]"`,
         }
 
         const confirmed = await confirm({
-            message: `确认删除所有 ${backups.length} 个备份？`,
+            message: `Are you sure to delete all the backup files?`,
             initialValue: false,
         })
 
         isCancelProcess(confirmed, CANCEL_PROCESS)
 
         if (!confirmed) {
-            outro('已取消')
+            outro(CANCEL_PROCESS)
             return
         }
 
         const deletedCount = clearBackups(config)
-        outro(`已删除 ${pc.red(deletedCount)} 个备份`)
+        outro(`All current backups have been deleted!`)
         return
     }
 
@@ -95,10 +95,10 @@ Run "npx pnpm-category-catalog undo [backupId]"`,
         const success = deleteBackup(config, options.delete)
 
         if (success) {
-            outro(`已删除备份: ${options.delete}`)
+            outro(`BackupID \`${pc.cyan(options.delete)}\` has been removed.`)
         }
         else {
-            outro(`未找到备份: ${options.delete}`)
+            outro(`BackupID \`${pc.cyan(options.delete)}\` not found.`)
         }
 
         return
@@ -109,13 +109,13 @@ Run "npx pnpm-category-catalog undo [backupId]"`,
         : getLatestBackup(config)
 
     if (!backup) {
-        outro(backupId ? `未找到备份: ${backupId}` : '没有找到任何备份')
+        outro(backupId ? `BackupID \`${pc.cyan(backupId)}\` not found` : 'No backups were found.')
         return
     }
 
     const { manifest } = backup
 
-    log.info('备份信息:')
+    log.info('Backup information:')
     printBackList([
         {
             backupId: pc.cyan(manifest.id),
@@ -126,30 +126,30 @@ Run "npx pnpm-category-catalog undo [backupId]"`,
     ])
 
     const confirmed = await confirm({
-        message: `确认恢复这 ${manifest.files.length} 个文件？`,
+        message: `Are you sure to restore the above-mentioned backup files?`,
     })
 
     if (!confirmed) {
-        outro('已取消')
+        outro(CANCEL_PROCESS)
         return
     }
 
     const restoredCount = restoreBackup(config, manifest.id)
 
     if (restoredCount >= 0) {
-        log.success(`已恢复 ${restoredCount} 个文件`)
+        log.success(`🎉 Congratulations, your current backup is restored.`)
 
         const shouldDelete = await confirm({
-            message: '是否删除该备份？',
+            message: 'Delete cached backup files?',
             initialValue: false,
         })
 
         if (shouldDelete) {
             deleteBackup(config, manifest.id)
-            outro('备份已删除')
+            outro('Done. Cache file has been deleted.')
         }
     }
     else {
-        outro('恢复失败')
+        outro('Recovery failure!')
     }
 }
