@@ -61,7 +61,7 @@ export const formatDependencyUsage = (
     options: FormatOptions = {},
 ): string => {
     const {
-        unusedText = 'unused',
+        unusedText = 'unUsed',
         abbreviationTemplate = (firstFew, total) => `use on ${firstFew} and other ${total} project packages`,
     } = options
 
