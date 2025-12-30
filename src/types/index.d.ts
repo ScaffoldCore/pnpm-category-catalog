@@ -96,3 +96,8 @@ export interface ProcessCatalogOptionsType {
     context: IWorkSpaceYaml
     usageMap?: DependencyUsageMap
 }
+
+export interface FormatOptions {
+    unusedText?: string
+    abbreviationTemplate?: (firstFew: string, total: string | number) => string
+}

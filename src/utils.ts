@@ -1,8 +1,9 @@
-import type { IConfig } from '@/types'
+import type { FormatOptions, IConfig } from '@/types'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { cancel, isCancel } from '@clack/prompts'
 import { Table } from 'console-table-printer'
+import pc from 'picocolors'
 import { parseDocument, YAMLMap } from 'yaml'
 import { DEPENDENCY_TYPES } from '@/constant.ts'
 
@@ -42,27 +43,36 @@ export function scanDependencyUsage(
 }
 
 /**
- * 格式化依赖使用信息用于显示
- * 规则：
- * - 0 个：返回 "未使用"
- * - 1-3 个：显示具体包名
- * - >3 个：显示前两个 + "等 N 个包"
+ * Format the list of dependent consumers
+ * @param usageMap Dependencies use relational mapping tables
+ * @param depName dependency names
+ * @param options Format options
+ *
+ * Rules:
+ * -0: returns "unused"
+ * - 1-3: Display specific package names
+ * - >3: Show the first two + "wait N packages"
+ *
+ * @returns string
  */
-export function formatDependencyUsage(
+export const formatDependencyUsage = (
     usageMap: DependencyUsageMap,
     depName: string,
-): string {
-    const users = usageMap.get(depName) || []
+    options: FormatOptions = {},
+): string => {
+    const {
+        unusedText = 'unused',
+        abbreviationTemplate = (firstFew, total) => `use on ${firstFew} and other ${total} project packages`,
+    } = options
 
-    if (users.length === 0) {
-        return 'unused'
-    }
+    const users = usageMap.get(depName) ?? []
 
-    if (users.length <= 3) {
+    if (users.length === 0)
+        return unusedText
+    if (users.length < 3)
         return users.join(', ')
-    }
 
-    return `${users.slice(0, 2).join(', ')} 等 ${users.length} 个包`
+    return abbreviationTemplate(pc.cyan(users.slice(0, 2).join(', ')), pc.red(users.length))
 }
 
 export const stringifyYamlWithTopLevelBlankLine = (value: string) => {
