@@ -135,7 +135,7 @@ cli
             })
 
             // 显示未使用到的依赖
-            if (pkgFiles.unused) {
+            if (pkgFiles.unused.length) {
                 intro(pc.red('当前您存在选择但未使用上的依赖包'))
                 printTable(pkgFiles.unused.map(i => ({
                     Dependencies: pc.yellow(i.dependency),
