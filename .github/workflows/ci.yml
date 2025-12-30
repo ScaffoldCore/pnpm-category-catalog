@@ -7,25 +7,25 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
-    - name: Install pnpm
-      uses: pnpm/action-setup@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
 
-    - name: Set node
-      uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-        cache: pnpm
+      - name: Set node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
 
-    - name: Setup
-      run: npm i -g @antfu/ni
+      - name: Setup
+        run: npm i -g @antfu/ni
 
-    - name: Install
-      run: nci
+      - name: Install
+        run: nci
 
-    - name: Lint
-      run: nr lint
+      - name: Lint
+        run: nr lint
 
   test:
     runs-on: ubuntu-latest
