@@ -38,7 +38,8 @@
         "prepublishOnly": "pnpm build",
         "examples:setup": "tsx scripts/examples-setup.ts",
         "dev:basic": "tsx scripts/examples-setup.ts basic && tsx src/cli.ts --cwd examples/workspace/basic",
-        "dev:category": "tsx src/cli.ts --cwd examples/workspace/basic"
+        "dev:category": "tsx src/cli.ts --cwd examples/workspace/basic",
+        "prepare": "simple-git-hooks"
     },
     "publishConfig": {
         "registry": "https://registry.npmjs.org",
