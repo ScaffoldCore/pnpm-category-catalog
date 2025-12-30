@@ -1,3 +1,4 @@
+import type { Option } from '@clack/prompts'
 import type {
     AllCatalogsType,
     CatalogsContextType,
@@ -118,28 +119,49 @@ async function getCatalogName(
 ): Promise<string> {
     const existingCatalogs = Object.keys(catalogs || {})
     const CUSTOM_CATALOG_NAME = '__new__'
-    let catalogsName: string = ''
 
-    const combinedCatalogs = Array.from(new Set([...DEFAULT_CATALOGS, ...existingCatalogs]))
+    const options: Option<string>[] = existingCatalogs.map((key) => {
+        const inlay = DEFAULT_CATALOGS.find(i => i.name.toLowerCase() === key.toLowerCase())
 
-    const selected = await select({
+        return {
+            label: key.toLowerCase(),
+            value: key.toLowerCase(),
+            hint: inlay?.descriptions,
+        }
+    })
+
+    DEFAULT_CATALOGS.forEach((c) => {
+        const isDuplicate = options.some(o => o.label === c.name)
+
+        if (!isDuplicate) {
+            options.push({
+                label: c.name,
+                value: c.name,
+                hint: c.descriptions,
+            })
+        }
+    })
+
+    options.push({
+        label: 'create a new category name?',
+        value: CUSTOM_CATALOG_NAME,
+    })
+
+    let catalogsName = await select({
         message: '请选择或自定义分类名称',
-        options: [
-            ...combinedCatalogs.map(name => ({ value: name, label: name })),
-            { value: CUSTOM_CATALOG_NAME, label: '创建新分类' },
-        ],
+        options: Array.from(new Set([...options])),
     }) as string
 
-    isCancelProcess(selected, CANCEL_PROCESS)
+    isCancelProcess(catalogsName, CANCEL_PROCESS)
 
-    if (selected === CUSTOM_CATALOG_NAME) {
+    if (catalogsName === CUSTOM_CATALOG_NAME) {
         catalogsName = await text({
             message: '请输入自定义分类名称',
             placeholder: '',
             validate: (value) => {
                 if (!value || !value.trim())
                     return '分类名称不能为空.'
-                if (combinedCatalogs.includes(value))
+                if (options.map(i => i.label).includes(value.trim()))
                     return '该分类已存在，请直接在列表中选择.'
             },
         }) as string
