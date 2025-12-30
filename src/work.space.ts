@@ -192,11 +192,10 @@ const processCatalog = async (options: ProcessCatalogOptionsType) => {
             message: 'Please select the dependencies you want to manage (if not, press Enter to skip this round)',
             options: remainingKeys.map((key) => {
                 const version = context.catalog![key]
-                const usage = usageMap ? formatDependencyUsage(usageMap, key) : ''
-                const label = usage ? `${key} (${version}) - ${usage}` : `${key} (${version})`
                 return {
                     value: key,
-                    label,
+                    label: `${key} (${version})`,
+                    hint: usageMap ? formatDependencyUsage(usageMap, key) : '',
                 }
             }),
             required: false,
