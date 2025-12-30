@@ -76,7 +76,7 @@ export const confirmModify = async (options: ConfirmModifyOptions): Promise<IWor
     }
 
     const finalConfirm = await confirm({
-        message: `Are you sure write the latest management configuration to the pnpm-workspace.yaml file?`,
+        message: `Are you sure write the latest management configuration to the ${pc.yellow('pnpm-workspace.yaml')} file?`,
     }) as boolean
 
     isCancelProcess(finalConfirm, CANCEL_PROCESS)
