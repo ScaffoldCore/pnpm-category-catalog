@@ -56,6 +56,11 @@ export const updateCatalogsWithContext = (options: CatalogsContextType) => {
         context.catalogs[catalogsName] = packageSort(dependencies)
         // console.log(`✅ ${choice.length} packages have been added to the catalogs.${catalogsName} node`)
     }
+
+    if (!Object.keys(context.catalog || {}).length) {
+        delete context.catalog
+    }
+
     return context
 }
 
