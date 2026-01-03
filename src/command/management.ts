@@ -3,6 +3,7 @@ import { intro, log, outro, spinner } from '@clack/prompts'
 import { link } from 'ansi-escapes'
 import { glob } from 'glob'
 import pc from 'picocolors'
+import { x } from 'tinyexec'
 import { createBackup } from '@/backup.ts'
 import { CATALOG_PLACEHOLDER } from '@/constant.ts'
 import { resolvePackageDependencies } from '@/dependencies.ts'
@@ -105,6 +106,13 @@ export const managementWorkSpaceCatalog = async (config: IConfig): Promise<void 
         stringifyYamlWithTopLevelBlankLine(workspace.context),
     )
     // log.success('done. updated pnpm-workspace.yaml')
+
+    await x('pnpm', ['install'], {
+        nodeOptions: {
+            cwd: config.cwd,
+            stdio: 'ignore',
+        },
+    })
 
     s.stop(`Done. Congratulations, you have successfully managed. Back ID: ${pc.dim(backupId)}`)
 

@@ -5,6 +5,7 @@ import { confirm, intro, log, outro } from '@clack/prompts'
 import boxen from 'boxen'
 import { Table } from 'console-table-printer'
 import pc from 'picocolors'
+import { x } from 'tinyexec'
 import { clearBackups, deleteBackup, formatBackupTime, getLatestBackup, listBackups, restoreBackup } from '@/backup.ts'
 import { CANCEL_PROCESS } from '@/constant.ts'
 import { isCancelProcess } from '@/utils.ts'
@@ -142,6 +143,13 @@ Run "npx pnpm-category-catalog undo [backupId]"`,
         const shouldDelete = await confirm({
             message: 'Delete cached backup files?',
             initialValue: false,
+        })
+
+        await x('pnpm', ['install'], {
+            nodeOptions: {
+                cwd: config.cwd,
+                stdio: 'ignore',
+            },
         })
 
         if (shouldDelete) {
